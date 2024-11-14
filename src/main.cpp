@@ -1,28 +1,13 @@
-#include <iostream>
-#include "raylib.h"
+#include "controller/Game.h"
+
+#define SCREEN_WIDTH 700
+#define SCREEN_HEIGHT 700
+#define START_SPEED 3
+#define SNAKE_WIDTH 30
 
 int main() {
-    const int screenWidth = 800;
-    const int screenHeight = 450;
-
-    InitWindow(screenWidth, screenHeight, "First screen");
-
-    SetTargetFPS(60);
-
-    while (!WindowShouldClose()) {
-
-        // TODO: Update your variables here
-
-        BeginDrawing();
-
-        ClearBackground(RAYWHITE);
-
-        DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
-
-        EndDrawing();
-    }
-
-    CloseWindow();
-
+    Game* game = new Game(SCREEN_WIDTH, SCREEN_HEIGHT, "First window", START_SPEED, SNAKE_WIDTH);
+    game->startGame();
+    delete game;
     return 0;
 }

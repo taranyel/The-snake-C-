@@ -3,22 +3,30 @@ project(snake)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+add_executable(snake src/main.cpp
+        src/controller/Game.cpp
+        src/controller/Game.h
+        src/window/Window.cpp
+        src/window/Window.h
+        src/entity/Snake.cpp
+        src/entity/Snake.h
+        src/entity/Food.cpp
+        src/entity/Food.h
+        src/entity/Coordinate.cpp
+        src/entity/Coordinate.h
+        src/entity/Direction.h)
+target_link_libraries(snake raylib)
+
 
 #for linux - raylib is already installed correctly (see in README.md how to correctly install raylib for Linux)
 
 find_package(raylib REQUIRED)
-
-# Include raylib as a linked library
-add_executable(snake src/main.cpp)
-target_link_libraries(snake raylib)
 
 
 #for windows - raylib is already installed
 
 #include_directories(C:/raylib/w64devkit/x86_64-w64-mingw32/include)
 #link_directories(C:/raylib/w64devkit/x86_64-w64-mingw32/lib)
-#add_executable(snake src/main.cpp)
-#target_link_libraries(snake raylib)
 #
 #if (WIN32)
 #    target_link_libraries(snake gdi32 winmm)
@@ -45,7 +53,5 @@ target_link_libraries(snake raylib)
 #set(PROJECT_INCLUDE "${CMAKE_CURRENT_LIST_DIR}/sources/") # Define PROJECT_INCLUDE to be the path to the include directory of the project
 #
 ## Declaring our executable
-#add_executable(${PROJECT_NAME} src/main.cpp)
 #target_sources(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCES})
 #target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_INCLUDE})
-#target_link_libraries(${PROJECT_NAME} PRIVATE raylib)
