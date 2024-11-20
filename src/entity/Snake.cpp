@@ -1,52 +1,40 @@
 #include "Snake.h"
 
-Snake::Snake(int startX, int startY, int startSpeedX, int startSpeedY, int snakeWidth) {
-    body.push_back(new Coordinate(startX, startY));
-    speed = new Coordinate(startSpeedX, startSpeedY);
+Snake::Snake(int startX, int startY, int speed, int snakeWidth) {
+    body.push_back(new Cell(startX, startY));
+    this->speed = speed;
     length = 1;
-    this->width = snakeWidth;
-    this->direction = RIGHT;
+    width = snakeWidth;
+    direction = RIGHT;
 }
 
 Snake::~Snake() {
-    for (Coordinate *coordinate: body) {
-        delete coordinate;
+    for (Cell *bodyPart: body) {
+        delete bodyPart;
     }
-
-    delete speed;
 }
 
-std::vector<Coordinate *> Snake::getBody() {
+std::vector<Cell *> Snake::getBody() {
     return body;
 }
 
-Coordinate &Snake::getSpeed() const {
-    return *speed;
+int Snake::getSpeed() const {
+    return speed;
 }
 
 int Snake::getLength() const {
     return length;
 }
 
-void Snake::setLength(int newLength) {
-    Snake::length = newLength;
-}
-
 int Snake::getWidth() const {
     return width;
 }
-
-Direction Snake::getDirection() const {
-    return direction;
-}
-
 void Snake::setDirection(Direction newDirection) {
-    Snake::direction = newDirection;
+    direction = newDirection;
 }
 
-void Snake::setSpeed(int x, int y) {
-    speed->setX(x);
-    speed->setY(y);
+void Snake::setSpeed(int newSpeed) {
+    speed = newSpeed;
 }
 
 void Snake::grow() {
@@ -55,24 +43,24 @@ void Snake::grow() {
 
     switch (direction) {
         case UP:
-            body.push_back(new Coordinate(0, lastY + width));
+            body.push_back(new Cell(lastX, lastY + width));
             break;
 
         case DOWN:
-            body.push_back(new Coordinate(0, lastY - width));
+            body.push_back(new Cell(lastX, lastY - width));
             break;
 
         case RIGHT:
-            body.push_back(new Coordinate(lastX - width, 0));
+            body.push_back(new Cell(lastX - width, lastY));
             break;
 
         case LEFT:
-            body.push_back(new Coordinate(lastX + width, 0));
+            body.push_back(new Cell(lastX + width, lastY));
             break;
     }
     length++;
 }
 
-
-
-
+Direction Snake::getDirection() const {
+    return direction;
+}

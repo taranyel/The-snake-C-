@@ -1,17 +1,20 @@
 #include "raylib.h"
 
-class Window {
+class Board {
 private:
     int width;
     int height;
     const char* title;
+    int cellSize;
 
 public:
-    Window(int width, int height, const char *title);
+    Board(int width, int height, const char *title, int cellSize);
+
+    int getCellSize() const;
 
     void initWindow();
 
-    ~Window();
+    ~Board();
 
     void closeWindow();
 

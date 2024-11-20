@@ -6,15 +6,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_executable(snake src/main.cpp
         src/controller/Game.cpp
         src/controller/Game.h
-        src/window/Window.cpp
-        src/window/Window.h
+        src/board/Board.cpp
+        src/board/Board.h
         src/entity/Snake.cpp
         src/entity/Snake.h
-        src/entity/Food.cpp
-        src/entity/Food.h
         src/entity/Coordinate.cpp
         src/entity/Coordinate.h
-        src/entity/Direction.h)
+        src/entity/Direction.h
+        src/entity/Cell.cpp
+        src/entity/Cell.h)
 target_link_libraries(snake raylib)
 
 
@@ -33,7 +33,8 @@ find_package(raylib REQUIRED)
 #endif ()
 
 
-#for any OS with no raylib installed manually
+#for any OS with no raylib installed manually (but if you have Linux, you need to have all dependencies for raylib being installed)
+
 #include(FetchContent)
 #set(FETCHCONTENT_QUIET FALSE)
 #set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE) # don't build the supplied examples

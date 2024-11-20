@@ -1,13 +1,15 @@
 #include "controller/Game.h"
 
-#define SCREEN_WIDTH 700
-#define SCREEN_HEIGHT 700
-#define START_SPEED 3
+#define SCREEN_WIDTH 600
+#define SCREEN_HEIGHT 600
+#define START_SPEED 150
 #define SNAKE_WIDTH 30
 
+
 int main() {
-    Game* game = new Game(SCREEN_WIDTH, SCREEN_HEIGHT, "First window", START_SPEED, SNAKE_WIDTH);
+    Game* game = new Game(SCREEN_WIDTH, SCREEN_HEIGHT, "Snake", START_SPEED, SNAKE_WIDTH);
     game->startGame();
     delete game;
     return 0;
 }
+
