@@ -1,3 +1,4 @@
+#include <vector>
 #include "Snake.h"
 
 Snake::Snake(int startX, int startY, int speed, int snakeWidth) {

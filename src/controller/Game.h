@@ -1,27 +1,34 @@
 #include <queue>
 #include <mutex>
+#include <cstdlib>
+#include <thread>
+#include <iostream>
 #include <condition_variable>
 #include "../entity/Snake.h"
+#include "GameStatus.h"
+
+#define CELL_SIZE 30
+#define START_SPEED 150
 
 class Game {
 private:
     Snake *snake;
     std::mutex snakeMutex, foodMutex, commandsMutex;
-    Board *board;
     std::vector<Cell *> food;
     std::queue<int> commands;
-    bool paused, isRunning;
+    bool paused;
     std::condition_variable cv;
-    std::time_t startSnake, startFood;
+    std::time_t startSnakeTimer, startFoodTimer;
+    GameStatus gameStatus;
 
 public:
-    Game(int screenWidth, int screenHeight, const char *title, int startSpeed, int cellSize);
+    Game();
 
     ~Game();
 
     void startGame();
 
-    void endGame();
+    void endGame(GameStatus status);
 
     void pauseGame();
 
@@ -29,7 +36,7 @@ public:
 
     void moveSnake();
 
-    void handleGame();
+    void controlGame();
 
     void generateFood();
 

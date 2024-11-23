@@ -1,7 +1,7 @@
-#include "Direction.h"
-#include "../board/Board.h"
+#include "../controller/Direction.h"
+#include "../screen/Screen.h"
 
-class Cell : public Coordinate{
+class Cell : public Coordinate {
 public:
     Cell(int x, int y);
 

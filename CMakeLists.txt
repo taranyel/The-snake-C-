@@ -6,15 +6,18 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_executable(snake src/main.cpp
         src/controller/Game.cpp
         src/controller/Game.h
-        src/board/Board.cpp
-        src/board/Board.h
+        src/screen/Screen.cpp
+        src/screen/Screen.h
         src/entity/Snake.cpp
         src/entity/Snake.h
-        src/entity/Coordinate.cpp
-        src/entity/Coordinate.h
-        src/entity/Direction.h
+        src/controller/Coordinate.cpp
+        src/controller/Coordinate.h
+        src/controller/Direction.h
         src/entity/Cell.cpp
-        src/entity/Cell.h)
+        src/entity/Cell.h
+        src/screen/ScreenType.h
+        src/controller/GameStatus.h
+)
 target_link_libraries(snake raylib)
 
 

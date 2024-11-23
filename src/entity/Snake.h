@@ -1,4 +1,4 @@
-#include <vector>
+#pragma once
 #include "Cell.h"
 
 class Snake {

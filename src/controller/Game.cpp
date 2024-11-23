@@ -1,25 +1,19 @@
-#include <cstdlib>
-#include <thread>
-#include <iostream>
 #include "Game.h"
 
-Game::Game(int screenWidth, int screenHeight, const char *title, int startSpeed, int cellSize) {
-    board = new Board(screenWidth, screenHeight, title, cellSize);
-    board->initWindow();
-    snake = new Snake(cellSize * 5, cellSize * 5, startSpeed, cellSize);
-    food.push_back(new Cell(generateNumber(screenWidth / cellSize) * board->getCellSize(),
-                            generateNumber(screenHeight / cellSize) * board->getCellSize()));
+Game::Game() {
+    snake = new Snake(CELL_SIZE * 5, CELL_SIZE * 5, START_SPEED, CELL_SIZE);
+    food.push_back(new Cell(generateNumber(GetScreenWidth() / CELL_SIZE) * CELL_SIZE,
+                            generateNumber(GetScreenHeight() / CELL_SIZE) * CELL_SIZE));
     paused = false;
-    isRunning = true;
-    time(&startSnake);
-    time(&startFood);
+    time(&startSnakeTimer);
+    time(&startFoodTimer);
+    gameStatus = RUNNING;
 }
 
 Game::~Game() {
     for (Cell *cell: food) {
         delete cell;
     }
-    delete board;
     delete snake;
 }
 
@@ -28,15 +22,16 @@ void Game::startGame() {
     std::thread moveSnake(&Game::moveSnake, this);
     std::thread generateFood(&Game::generateFood, this);
 
-    while (isRunning && !WindowShouldClose()) {
-        board->setWidth(GetScreenWidth());
-        board->setHeight(GetScreenHeight());
-        handleGame();
-        draw();
-    }
+    while (gameStatus == RUNNING) {
 
-    if (WindowShouldClose()) {
-        endGame();
+        if (WindowShouldClose()) {
+            cv.notify_all();
+            gameStatus = QUIT;
+            break;
+        }
+
+        controlGame();
+        draw();
     }
 
     std::lock_guard<std::mutex> lock(commandsMutex);
@@ -44,12 +39,10 @@ void Game::startGame() {
     catchInput.join();
     moveSnake.join();
     generateFood.join();
-
-    CloseWindow();
 }
 
 void Game::waitForInput() {
-    while (isRunning) {
+    while (gameStatus == RUNNING) {
         int key = GetKeyPressed();
         if (key != 0) {
             commandsMutex.lock();
@@ -60,7 +53,7 @@ void Game::waitForInput() {
     }
 }
 
-void Game::handleGame() {
+void Game::controlGame() {
     while (!commands.empty()) {
         commandsMutex.lock();
         int command = commands.front();
@@ -83,38 +76,38 @@ void Game::handleGame() {
             case KEY_SPACE:
                 pauseGame();
                 break;
-            case KEY_ESCAPE:
-                endGame();
-                return;
+            case KEY_Q:
+                endGame(QUIT);
+                break;
             default:
                 break;
         }
     }
 }
 
-void Game::endGame() {
-    isRunning = false;
+void Game::endGame(GameStatus status) {
     cv.notify_all();
+    gameStatus = status;
 }
 
 void Game::draw() {
     BeginDrawing();
     ClearBackground(RAYWHITE);
 
-    for (int i = board->getCellSize(); i < board->getHeight(); i += board->getCellSize()) {
-        DrawLine(i, 0, i, board->getHeight(), LIGHTGRAY);
-        DrawLine(0, i, board->getWidth(), i, LIGHTGRAY);
+    for (int i = CELL_SIZE; i < GetScreenHeight(); i += CELL_SIZE) {
+        DrawLine(i, 0, i, GetScreenHeight(), LIGHTGRAY);
+        DrawLine(0, i, GetScreenWidth(), i, LIGHTGRAY);
     }
 
     std::lock_guard<std::mutex> lockSnake(snakeMutex);
     std::lock_guard<std::mutex> lockFood(foodMutex);
 
     for (Cell *cell: food) {
-        cell->draw(board->getCellSize(), GREEN);
+        cell->draw(CELL_SIZE, GREEN);
     }
 
     for (Cell *cell: snake->getBody()) {
-        cell->draw(board->getCellSize(), MAROON);
+        cell->draw(CELL_SIZE, MAROON);
     }
 
     EndDrawing();
@@ -122,7 +115,7 @@ void Game::draw() {
 
 
 void Game::moveSnake() {
-    while (isRunning) {
+    while (gameStatus == RUNNING) {
 
         if (paused) {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -130,7 +123,7 @@ void Game::moveSnake() {
         }
 
         if (isGameOver()) {
-            endGame();
+            endGame(LOSS);
             break;
         }
 
@@ -155,8 +148,8 @@ void Game::moveSnake() {
                 break;
         }
 
-        snake->getBody()[0]->setX(checkBoundary(snake->getBody()[0]->getX(), board->getWidth()));
-        snake->getBody()[0]->setY(checkBoundary(snake->getBody()[0]->getY(), board->getHeight()));
+        snake->getBody()[0]->setX(checkBoundary(snake->getBody()[0]->getX(), GetScreenWidth()));
+        snake->getBody()[0]->setY(checkBoundary(snake->getBody()[0]->getY(), GetScreenHeight()));
 
         for (int i = 1; i < snake->getLength(); i++) {
             int currentX = snake->getBody()[i]->getX();
@@ -173,7 +166,7 @@ void Game::moveSnake() {
 }
 
 void Game::generateFood() {
-    while (isRunning) {
+    while (gameStatus == RUNNING) {
 
         if (paused) {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -183,18 +176,20 @@ void Game::generateFood() {
         time_t now;
         time(&now);
 
-        if (now - startFood > 5) {
-            time(&startFood);
+        if (now - startFoodTimer > 5) {
+            time(&startFoodTimer);
 
-            int cellAmount = board->getWidth() / board->getCellSize();
-            int x = generateNumber(cellAmount) * board->getCellSize();
-            int y = generateNumber(cellAmount) * board->getCellSize();
+            int cellAmountX = GetScreenWidth() / CELL_SIZE;
+            int cellAmountY = GetScreenHeight() / CELL_SIZE;
+
+            int x = generateNumber(cellAmountX) * CELL_SIZE;
+            int y = generateNumber(cellAmountY) * CELL_SIZE;
 
             std::lock_guard<std::mutex> lockSnake(snakeMutex);
 
             while (isInArray(x, y, snake->getBody(), 0) || isInArray(x, y, food, 0)) {
-                x = generateNumber(cellAmount) * board->getCellSize();
-                y = generateNumber(cellAmount) * board->getCellSize();
+                x = generateNumber(cellAmountX) * CELL_SIZE;
+                y = generateNumber(cellAmountY) * CELL_SIZE;
             }
 
 
@@ -243,13 +238,13 @@ void Game::controlSpeed() {
 
     std::lock_guard<std::mutex> lockSnake(snakeMutex);
 
-    if (now - startSnake > 15 && snake->getSpeed() > 40) {
-        time(&startSnake);
+    if (now - startSnakeTimer > 15 && snake->getSpeed() > 40) {
+        time(&startSnakeTimer);
         snake->setSpeed(snake->getSpeed() - 20);
     }
 }
 
-bool Game::isInArray(int x, int y, const std::vector<Cell *>& array, int startIndex) {
+bool Game::isInArray(int x, int y, const std::vector<Cell *> &array, int startIndex) {
     for (int i = startIndex; i < array.size(); i++) {
         if (x == array[i]->getX() && y == array[i]->getY()) {
             return true;
@@ -264,4 +259,3 @@ bool Game::isGameOver() {
     }
     return false;
 }
-
