@@ -6,14 +6,13 @@
 class Game {
 private:
     Snake *snake;
-    std::mutex snakeMutex;
+    std::mutex snakeMutex, foodMutex, commandsMutex;
     Board *board;
-    Cell *food;
+    std::vector<Cell *> food;
     std::queue<int> commands;
-    std::mutex commandsMutex;
-    bool paused;
-    bool isRunning;
+    bool paused, isRunning;
     std::condition_variable cv;
+    std::time_t startSnake, startFood;
 
 public:
     Game(int screenWidth, int screenHeight, const char *title, int startSpeed, int cellSize);
@@ -22,7 +21,7 @@ public:
 
     void startGame();
 
-    static void endGame();
+    void endGame();
 
     void pauseGame();
 
@@ -41,4 +40,10 @@ public:
     int checkBoundary(int a, int max);
 
     void waitForInput();
+
+    void controlSpeed();
+
+    bool isInArray(int x, int y, const std::vector<Cell *>& array, int startIndex);
+
+    bool isGameOver();
 };
