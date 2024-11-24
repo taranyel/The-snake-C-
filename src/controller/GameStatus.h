@@ -1,6 +1,7 @@
+#pragma once
+
 enum GameStatus {
     RUNNING,
-    PAUSE,
     QUIT,
     LOSS,
     WON

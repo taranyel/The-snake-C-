@@ -1,3 +1,5 @@
+#pragma once
+
 #include "raylib.h"
 #include "ScreenType.h"
 #include "../controller/Game.h"
@@ -17,11 +19,17 @@ public:
 
     ~Screen();
 
-    void showStartScreen();
+    void setScreenTypeAfterGame();
 
-    void showGameOverScreen();
+    void showStartScreen() const;
 
-    void showVictoryScreen();
+    void showGameOverScreen() const;
+
+    void showVictoryScreen() const;
+
+    void showHelpScreen() const;
 
     void start();
+
+    bool startPlay();
 };

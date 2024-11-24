@@ -3,8 +3,10 @@
 #include <cstdlib>
 #include <thread>
 #include <iostream>
+#include <random>
 #include <condition_variable>
 #include "../entity/Snake.h"
+#include "../entity/Cell.h"
 #include "GameStatus.h"
 
 #define CELL_SIZE 30
@@ -20,6 +22,8 @@ private:
     std::condition_variable cv;
     std::time_t startSnakeTimer, startFoodTimer;
     GameStatus gameStatus;
+    int score;
+    Texture2D bugImage;
 
 public:
     Game();
@@ -42,9 +46,9 @@ public:
 
     void eatFood();
 
-    static int generateNumber(int max);
+    static int generateNumber(int min, int max);
 
-    int checkBoundary(int a, int max);
+    int checkBorder(int a, int min, int max, bool xCoord);
 
     void waitForInput();
 
@@ -53,4 +57,10 @@ public:
     bool isInArray(int x, int y, const std::vector<Cell *>& array, int startIndex);
 
     bool isGameOver();
+
+    bool isVictory();
+
+    GameStatus getGameStatus() const;
+
+    int getScore() const;
 };

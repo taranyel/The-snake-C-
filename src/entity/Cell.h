@@ -1,5 +1,7 @@
-#include "../controller/Direction.h"
-#include "../screen/Screen.h"
+#pragma once
+
+#include "raylib.h"
+#include "../controller/Coordinate.h"
 
 class Cell : public Coordinate {
 public:

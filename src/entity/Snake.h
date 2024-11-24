@@ -1,5 +1,7 @@
 #pragma once
+
 #include "Cell.h"
+#include "../controller/Direction.h"
 
 class Snake {
 private:

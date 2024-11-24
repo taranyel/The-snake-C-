@@ -1,7 +1,7 @@
-#include "controller/Game.h"
+#include "screen/Screen.h"
 
-#define SCREEN_WIDTH 600
-#define SCREEN_HEIGHT 600
+#define SCREEN_WIDTH 660
+#define SCREEN_HEIGHT 690
 
 
 int main() {
@@ -10,4 +10,3 @@ int main() {
     delete screen;
     return 0;
 }
-

@@ -1,4 +1,4 @@
-#include "Coordinate.h"
+#pragma once
 
 enum Direction {
     UP,
