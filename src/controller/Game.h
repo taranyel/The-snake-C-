@@ -38,6 +38,8 @@ public:
 
     void draw();
 
+    void drawBackground();
+
     void moveSnake();
 
     void controlGame();

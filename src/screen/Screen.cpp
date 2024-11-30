@@ -48,6 +48,7 @@ void Screen::showGameOverScreen() const {
     DrawText(scoreText.c_str(), 240, 290, 35, BLACK);
 
     DrawText("PRESS ENTER to START NEW GAME", 45, 360, 30, DARKGRAY);
+    DrawText("or Q to QUIT", 235, 400, 25, DARKGRAY);
 
     EndDrawing();
 }
@@ -65,6 +66,7 @@ void Screen::showVictoryScreen() const {
     DrawText(scoreText.c_str(), 240, 290, 35, BLACK);
 
     DrawText("PRESS ENTER to START NEW GAME", 45, 360, 30, DARKGRAY);
+    DrawText("or Q to QUIT", 235, 400, 25, DARKGRAY);
 
     EndDrawing();
 }
@@ -77,6 +79,8 @@ void Screen::showHelpScreen() const {
     DrawRectangle(0, 0, width, height, LIGHTGRAY);
     DrawText("HELP", 230, 150, 70, BROWN);
     DrawText("PRESS ENTER to START NEW GAME", 45, 260, 30, BROWN);
+    DrawText("or Q to QUIT", 235, 300, 25, BROWN);
+
     DrawText("Main rules:", 45, 400, 30, BLACK);
     DrawText("- eat food", 55, 460, 25, BROWN);
     DrawText("- to fill the entire playing field with a snake", 55, 505, 25, BROWN);
@@ -121,7 +125,6 @@ void Screen::start() {
             }
         }
     }
-
     CloseWindow();
 }
 

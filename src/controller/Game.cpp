@@ -98,10 +98,7 @@ void Game::endGame(GameStatus status) {
     gameStatus = status;
 }
 
-void Game::draw() {
-    BeginDrawing();
-    ClearBackground(RAYWHITE);
-
+void Game::drawBackground() {
     std::string scoreText = "score: ";
     scoreText.append(std::to_string(score));
     DrawText(scoreText.c_str(), CELL_SIZE, CELL_SIZE, 25, DARKGRAY);
@@ -118,6 +115,13 @@ void Game::draw() {
 
     DrawRectangleLines(CELL_SIZE, CELL_SIZE * 2, GetScreenWidth() - CELL_SIZE * 2, GetScreenHeight() - CELL_SIZE * 3,
                        BLACK);
+}
+
+void Game::draw() {
+    BeginDrawing();
+    ClearBackground(RAYWHITE);
+
+    drawBackground();
 
     std::lock_guard<std::mutex> lockSnake(snakeMutex);
     std::lock_guard<std::mutex> lockFood(foodMutex);
@@ -143,17 +147,6 @@ void Game::moveSnake() {
             continue;
         }
 
-        if (isVictory()) {
-            endGame(WON);
-            break;
-        }
-
-        if (isGameOver()) {
-            endGame(LOSS);
-            break;
-        }
-
-        eatFood();
         controlSpeed();
 
         int prevX = snake->getBody()[0]->getX();
@@ -178,6 +171,18 @@ void Game::moveSnake() {
                 checkBorder(snake->getBody()[0]->getX(), CELL_SIZE, GetScreenWidth() - CELL_SIZE * 2, true));
         snake->getBody()[0]->setY(
                 checkBorder(snake->getBody()[0]->getY(), CELL_SIZE * 2, GetScreenHeight() - CELL_SIZE * 2, false));
+
+        if (isVictory()) {
+            endGame(WON);
+            break;
+        }
+
+        if (isGameOver()) {
+            endGame(LOSS);
+            break;
+        }
+
+        eatFood();
 
         for (int i = 1; i < snake->getLength(); i++) {
             int currentX = snake->getBody()[i]->getX();
@@ -311,3 +316,5 @@ bool Game::isVictory() {
 int Game::getScore() const {
     return score;
 }
+
+
