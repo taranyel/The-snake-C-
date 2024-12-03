@@ -3,37 +3,67 @@ project(snake)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-add_executable(snake src/main.cpp
-        src/controller/Game.cpp
-        src/controller/Game.h
-        src/screen/Screen.cpp
-        src/screen/Screen.h
-        src/entity/Snake.cpp
-        src/entity/Snake.h
-        src/controller/Coordinate.cpp
-        src/controller/Coordinate.h
-        src/controller/Direction.h
-        src/entity/Cell.cpp
-        src/entity/Cell.h
-        src/screen/ScreenType.h
-        src/controller/GameStatus.h
-)
-target_link_libraries(snake raylib)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
+#Main application
+add_executable(
+        snake src/main/main.cpp
+        src/main/controller/Game.cpp
+        src/main/controller/Game.h
+        src/main/screen/Screen.cpp
+        src/main/screen/Screen.h
+        src/main/entity/Snake.cpp
+        src/main/entity/Snake.h
+        src/main/controller/Coordinate.cpp
+        src/main/controller/Coordinate.h
+        src/main/controller/Direction.h
+        src/main/entity/Cell.cpp
+        src/main/entity/Cell.h
+        src/main/screen/ScreenType.h
+        src/main/controller/GameStatus.h
+)
+
+#Tests
+add_executable(
+        tests src/test/controller/GameTest.cpp
+        src/test/screen/ScreenTest.cpp
+        src/test/catch.hpp
+        src/test/catch.cpp
+
+        src/main/controller/Game.cpp
+        src/main/controller/Game.h
+        src/main/screen/Screen.cpp
+        src/main/screen/Screen.h
+        src/main/entity/Snake.cpp
+        src/main/entity/Snake.h
+        src/main/controller/Coordinate.cpp
+        src/main/controller/Coordinate.h
+        src/main/controller/Direction.h
+        src/main/entity/Cell.cpp
+        src/main/entity/Cell.h
+        src/main/screen/ScreenType.h
+        src/main/controller/GameStatus.h
+)
+
+enable_testing()
+add_test(NAME all COMMAND tests)
+
+target_link_libraries(snake raylib)
+target_link_libraries(tests raylib)
 
 #for linux - raylib is already installed correctly (see in README.md how to correctly install raylib for Linux)
 
-find_package(raylib REQUIRED)
+#find_package(raylib REQUIRED)
 
 
 #for windows - raylib is already installed
 
-#include_directories(C:/raylib/w64devkit/x86_64-w64-mingw32/include)
-#link_directories(C:/raylib/w64devkit/x86_64-w64-mingw32/lib)
-#
-#if (WIN32)
-#    target_link_libraries(snake gdi32 winmm)
-#endif ()
+include_directories(C:/raylib/w64devkit/x86_64-w64-mingw32/include)
+link_directories(C:/raylib/w64devkit/x86_64-w64-mingw32/lib)
+
+if (WIN32)
+    target_link_libraries(snake gdi32 winmm)
+endif ()
 
 
 #for any OS with no raylib installed manually (but if you have Linux, you need to have all dependencies for raylib being installed)

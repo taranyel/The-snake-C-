@@ -1,14 +1,18 @@
 #include "Game.h"
 
-Game::Game() {
+Game::Game(int newScreenWidth, int newScreenHeight) {
+    screenWidth = newScreenWidth;
+    screenHeight = newScreenHeight;
+
     snake = new Snake(CELL_SIZE * 5, CELL_SIZE * 5, START_SPEED, CELL_SIZE);
-    food.push_back(new Cell(generateNumber(1, GetScreenWidth() / CELL_SIZE - 2),
-                            generateNumber(2, GetScreenHeight() / CELL_SIZE - 3)));
+    food.push_back(new Cell(generateNumber(1, screenWidth / CELL_SIZE - 2),
+                            generateNumber(2, screenHeight / CELL_SIZE - 3)));
     paused = false;
     startSnakeTimer = time(nullptr);
     startFoodTimer = time(nullptr);
     gameStatus = RUNNING;
     score = 0;
+
     Image bug = LoadImage("../resources/bug.png");
     bugImage = LoadTextureFromImage(bug);
     bugImage.height = CELL_SIZE;
@@ -70,17 +74,33 @@ void Game::controlGame() {
 
         switch (command) {
             case KEY_RIGHT:
+                if (snake->getDirection() == LEFT) {
+                    break;
+                }
                 snake->setDirection(RIGHT);
                 break;
+
             case KEY_LEFT:
+                if (snake->getDirection() == RIGHT) {
+                    break;
+                }
                 snake->setDirection(LEFT);
                 break;
+
             case KEY_UP:
+                if (snake->getDirection() == DOWN) {
+                    break;
+                }
                 snake->setDirection(UP);
                 break;
+
             case KEY_DOWN:
+                if (snake->getDirection() == UP) {
+                    break;
+                }
                 snake->setDirection(DOWN);
                 break;
+
             case KEY_SPACE:
                 pauseGame();
                 break;
@@ -103,8 +123,8 @@ void Game::drawBackground() {
     scoreText.append(std::to_string(score));
     DrawText(scoreText.c_str(), CELL_SIZE, CELL_SIZE, 25, DARKGRAY);
 
-    for (int i = CELL_SIZE; i < GetScreenWidth() - CELL_SIZE; i += CELL_SIZE) {
-        for (int j = CELL_SIZE * 2; j < GetScreenHeight() - CELL_SIZE; j += CELL_SIZE) {
+    for (int i = CELL_SIZE; i < screenWidth - CELL_SIZE; i += CELL_SIZE) {
+        for (int j = CELL_SIZE * 2; j < screenHeight - CELL_SIZE; j += CELL_SIZE) {
             if (((i + j) / CELL_SIZE) % 2 == 0) {
                 DrawRectangle(i, j, CELL_SIZE, CELL_SIZE, {132, 235, 80, 255});
             } else {
@@ -113,7 +133,7 @@ void Game::drawBackground() {
         }
     }
 
-    DrawRectangleLines(CELL_SIZE, CELL_SIZE * 2, GetScreenWidth() - CELL_SIZE * 2, GetScreenHeight() - CELL_SIZE * 3,
+    DrawRectangleLines(CELL_SIZE, CELL_SIZE * 2, screenWidth - CELL_SIZE * 2, screenHeight - CELL_SIZE * 3,
                        BLACK);
 }
 
@@ -149,53 +169,60 @@ void Game::moveSnake() {
 
         controlSpeed();
 
-        int prevX = snake->getBody()[0]->getX();
-        int prevY = snake->getBody()[0]->getY();
-
-        switch (snake->getDirection()) {
-            case UP:
-                snake->getBody()[0]->setCoordinate(prevX, prevY - snake->getWidth());
-                break;
-            case DOWN:
-                snake->getBody()[0]->setCoordinate(prevX, prevY + snake->getWidth());
-                break;
-            case RIGHT:
-                snake->getBody()[0]->setCoordinate(prevX + snake->getWidth(), prevY);
-                break;
-            case LEFT:
-                snake->getBody()[0]->setCoordinate(prevX - snake->getWidth(), prevY);
-                break;
-        }
-
-        snake->getBody()[0]->setX(
-                checkBorder(snake->getBody()[0]->getX(), CELL_SIZE, GetScreenWidth() - CELL_SIZE * 2, true));
-        snake->getBody()[0]->setY(
-                checkBorder(snake->getBody()[0]->getY(), CELL_SIZE * 2, GetScreenHeight() - CELL_SIZE * 2, false));
-
-        if (isVictory()) {
-            endGame(WON);
+        if (!setSnakePosition()) {
             break;
-        }
-
-        if (isGameOver()) {
-            endGame(LOSS);
-            break;
-        }
-
-        eatFood();
-
-        for (int i = 1; i < snake->getLength(); i++) {
-            int currentX = snake->getBody()[i]->getX();
-            int currentY = snake->getBody()[i]->getY();
-
-            snake->getBody()[i]->setCoordinate(prevX, prevY);
-            prevX = currentX;
-            prevY = currentY;
         }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(snake->getSpeed()));
         cv.notify_one();
     }
+}
+
+bool Game::setSnakePosition() {
+    int prevX = snake->getBody()[0]->getX();
+    int prevY = snake->getBody()[0]->getY();
+
+    switch (snake->getDirection()) {
+        case UP:
+            snake->getBody()[0]->setCoordinate(prevX, prevY - snake->getWidth());
+            break;
+        case DOWN:
+            snake->getBody()[0]->setCoordinate(prevX, prevY + snake->getWidth());
+            break;
+        case RIGHT:
+            snake->getBody()[0]->setCoordinate(prevX + snake->getWidth(), prevY);
+            break;
+        case LEFT:
+            snake->getBody()[0]->setCoordinate(prevX - snake->getWidth(), prevY);
+            break;
+    }
+
+    snake->getBody()[0]->setX(
+            checkBorder(snake->getBody()[0]->getX(), CELL_SIZE, screenWidth - CELL_SIZE * 2, true));
+    snake->getBody()[0]->setY(
+            checkBorder(snake->getBody()[0]->getY(), CELL_SIZE * 2, screenHeight - CELL_SIZE * 2, false));
+
+    if (isVictory()) {
+        endGame(WON);
+        return false;
+    }
+
+    if (isGameOver()) {
+        endGame(LOSS);
+        return false;
+    }
+
+    eatFood();
+
+    for (int i = 1; i < snake->getLength(); i++) {
+        int currentX = snake->getBody()[i]->getX();
+        int currentY = snake->getBody()[i]->getY();
+
+        snake->getBody()[i]->setCoordinate(prevX, prevY);
+        prevX = currentX;
+        prevY = currentY;
+    }
+    return true;
 }
 
 void Game::generateFood() {
@@ -206,31 +233,31 @@ void Game::generateFood() {
             time(&startFoodTimer);
             continue;
         }
+        setFoodPosition();
+    }
+}
 
-        time_t now;
-        time(&now);
+void Game::setFoodPosition() {
+    time_t now;
+    time(&now);
+    if (now - startFoodTimer >= 4) {
+        time(&startFoodTimer);
 
-        if (now - startFoodTimer >= 4) {
-            time(&startFoodTimer);
+        int cellAmountX = (screenWidth) / CELL_SIZE - 2;
+        int cellAmountY = (screenHeight) / CELL_SIZE - 3;
 
-            int cellAmountX = (GetScreenWidth()) / CELL_SIZE - 2;
-            int cellAmountY = (GetScreenHeight()) / CELL_SIZE - 3;
+        int x = generateNumber(1, cellAmountX);
+        int y = generateNumber(2, cellAmountY);
 
-            int x = generateNumber(1, cellAmountX);
-            int y = generateNumber(2, cellAmountY);
+        std::lock_guard<std::mutex> lockSnake(snakeMutex);
 
-            std::lock_guard<std::mutex> lockSnake(snakeMutex);
-
-            while (isInArray(x, y, snake->getBody(), 0) || isInArray(x, y, food, 0)) {
-                x = generateNumber(1, cellAmountX);
-                y = generateNumber(2, cellAmountY);
-            }
-
-            foodMutex.lock();
-            food.push_back(new Cell(x, y));
-            foodMutex.unlock();
-            cv.notify_one();
+        while (isInArray(x, y, snake->getBody(), 0) || isInArray(x, y, food, 0)) {
+            x = generateNumber(1, cellAmountX);
+            y = generateNumber(2, cellAmountY);
         }
+
+        addFood(x, y);
+        cv.notify_one();
     }
 }
 
@@ -295,6 +322,7 @@ bool Game::isInArray(int x, int y, const std::vector<Cell *> &array, int startIn
     return false;
 }
 
+
 bool Game::isGameOver() {
     if (isInArray(snake->getBody()[0]->getX(), snake->getBody()[0]->getY(), snake->getBody(), 1)) {
         return true;
@@ -307,7 +335,7 @@ GameStatus Game::getGameStatus() const {
 }
 
 bool Game::isVictory() {
-    if (snake->getLength() == GetScreenWidth() * GetScreenHeight()) {
+    if (snake->getLength() == screenWidth * screenHeight) {
         return true;
     }
     return false;
@@ -316,5 +344,25 @@ bool Game::isVictory() {
 int Game::getScore() const {
     return score;
 }
+
+Snake *Game::getSnake() const {
+    return snake;
+}
+
+const std::vector<Cell *> &Game::getFood() const {
+    return food;
+}
+
+bool Game::isPaused() const {
+    return paused;
+}
+
+void Game::addFood(int x, int y) {
+    foodMutex.lock();
+    food.push_back(new Cell(x, y));
+    foodMutex.unlock();
+}
+
+
 
 

@@ -6,7 +6,7 @@ Screen::Screen(int width, int height, const char *title) {
     this->title = title;
     screenType = START;
     initWindow();
-    game = new Game();
+    game = new Game(width, height);
 }
 
 void Screen::initWindow() {
@@ -101,7 +101,7 @@ void Screen::start() {
 
             case PLAY:
                 delete game;
-                game = new Game();
+                game = new Game(width, height);
                 game->startGame();
                 setScreenTypeAfterGame();
                 break;
@@ -153,4 +153,3 @@ bool Screen::startPlay() {
     }
     return true;
 }
-

@@ -24,9 +24,10 @@ private:
     GameStatus gameStatus;
     int score;
     Texture2D bugImage;
+    int screenWidth, screenHeight;
 
 public:
-    Game();
+    Game(int newScreenWidth, int newScreenHeight);
 
     ~Game();
 
@@ -65,4 +66,16 @@ public:
     GameStatus getGameStatus() const;
 
     int getScore() const;
+
+    Snake *getSnake() const;
+
+    const std::vector<Cell *> &getFood() const;
+
+    bool isPaused() const;
+
+    void addFood(int x, int y);
+
+    bool setSnakePosition();
+
+    void setFoodPosition();
 };
