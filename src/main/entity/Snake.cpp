@@ -27,9 +27,6 @@ int Snake::getLength() const {
     return length;
 }
 
-int Snake::getWidth() const {
-    return width;
-}
 void Snake::setDirection(Direction newDirection) {
     direction = newDirection;
 }
@@ -64,4 +61,8 @@ void Snake::grow() {
 
 Direction Snake::getDirection() const {
     return direction;
+}
+
+Cell *Snake::getHead() {
+    return body[0];
 }

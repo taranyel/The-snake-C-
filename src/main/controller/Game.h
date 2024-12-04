@@ -39,7 +39,7 @@ public:
 
     void draw();
 
-    void drawBackground();
+    void drawBackground() const;
 
     void moveSnake();
 
@@ -51,15 +51,15 @@ public:
 
     static int generateNumber(int min, int max);
 
-    int checkBorder(int a, int min, int max, bool xCoord);
+    static bool isOutOfBoundary(int a, int min, int max);
 
     void waitForInput();
 
     void controlSpeed();
 
-    bool isInArray(int x, int y, const std::vector<Cell *>& array, int startIndex);
+    static bool isInArray(int x, int y, const std::vector<Cell *>& array, int startIndex);
 
-    bool isGameOver();
+    bool isGameOver(int x, int y);
 
     bool isVictory();
 

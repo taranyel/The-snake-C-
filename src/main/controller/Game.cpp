@@ -118,7 +118,7 @@ void Game::endGame(GameStatus status) {
     gameStatus = status;
 }
 
-void Game::drawBackground() {
+void Game::drawBackground() const {
     std::string scoreText = "score: ";
     scoreText.append(std::to_string(score));
     DrawText(scoreText.c_str(), CELL_SIZE, CELL_SIZE, 25, DARKGRAY);
@@ -179,40 +179,41 @@ void Game::moveSnake() {
 }
 
 bool Game::setSnakePosition() {
-    int prevX = snake->getBody()[0]->getX();
-    int prevY = snake->getBody()[0]->getY();
+    int prevX = snake->getHead()->getX();
+    int prevY = snake->getHead()->getY();
 
     switch (snake->getDirection()) {
         case UP:
-            snake->getBody()[0]->setCoordinate(prevX, prevY - snake->getWidth());
+            if (isGameOver(prevX, prevY - CELL_SIZE)) {
+                return false;
+            }
+            snake->getHead()->setCoordinate(prevX, prevY - CELL_SIZE);
             break;
         case DOWN:
-            snake->getBody()[0]->setCoordinate(prevX, prevY + snake->getWidth());
+            if (isGameOver(prevX, prevY + CELL_SIZE)) {
+                return false;
+            }
+            snake->getHead()->setCoordinate(prevX, prevY + CELL_SIZE);
             break;
         case RIGHT:
-            snake->getBody()[0]->setCoordinate(prevX + snake->getWidth(), prevY);
+            if (isGameOver(prevX + CELL_SIZE, prevY)) {
+                return false;
+            }
+            snake->getHead()->setCoordinate(prevX + CELL_SIZE, prevY);
             break;
         case LEFT:
-            snake->getBody()[0]->setCoordinate(prevX - snake->getWidth(), prevY);
+            if (isGameOver(prevX - CELL_SIZE, prevY)) {
+                return false;
+            }
+            snake->getHead()->setCoordinate(prevX - CELL_SIZE, prevY);
             break;
-    }
-
-    snake->getBody()[0]->setX(
-            checkBorder(snake->getBody()[0]->getX(), CELL_SIZE, screenWidth - CELL_SIZE * 2, true));
-    snake->getBody()[0]->setY(
-            checkBorder(snake->getBody()[0]->getY(), CELL_SIZE * 2, screenHeight - CELL_SIZE * 2, false));
-
-    if (isVictory()) {
-        endGame(WON);
-        return false;
-    }
-
-    if (isGameOver()) {
-        endGame(LOSS);
-        return false;
     }
 
     eatFood();
+
+    if (isVictory()) {
+        return false;
+    }
 
     for (int i = 1; i < snake->getLength(); i++) {
         int currentX = snake->getBody()[i]->getX();
@@ -249,8 +250,6 @@ void Game::setFoodPosition() {
         int x = generateNumber(1, cellAmountX);
         int y = generateNumber(2, cellAmountY);
 
-        std::lock_guard<std::mutex> lockSnake(snakeMutex);
-
         while (isInArray(x, y, snake->getBody(), 0) || isInArray(x, y, food, 0)) {
             x = generateNumber(1, cellAmountX);
             y = generateNumber(2, cellAmountY);
@@ -272,7 +271,7 @@ void Game::eatFood() {
     std::lock_guard<std::mutex> lockFood(foodMutex);
 
     for (int i = 0; i < food.size(); i++) {
-        if (food[i]->getX() == snake->getBody()[0]->getX() && food[i]->getY() == snake->getBody()[0]->getY()) {
+        if ((food[i]->getX() == snake->getHead()->getX()) && (food[i]->getY() == snake->getHead()->getY())) {
             snake->grow();
             delete food[i];
             food.erase(food.begin() + i);
@@ -282,19 +281,11 @@ void Game::eatFood() {
     }
 }
 
-int Game::checkBorder(int a, int min, int max, bool xCoord) {
-    if (a > max) {
-        if (xCoord) {
-            return CELL_SIZE;
-        }
-        return CELL_SIZE * 2;
-    } else if (a < min) {
-        if (xCoord) {
-            return max;
-        }
-        return max;
+bool Game::isOutOfBoundary(int a, int min, int max) {
+    if (a > max || a < min) {
+        return true;
     }
-    return a;
+    return false;
 }
 
 void Game::pauseGame() {
@@ -323,8 +314,11 @@ bool Game::isInArray(int x, int y, const std::vector<Cell *> &array, int startIn
 }
 
 
-bool Game::isGameOver() {
-    if (isInArray(snake->getBody()[0]->getX(), snake->getBody()[0]->getY(), snake->getBody(), 1)) {
+bool Game::isGameOver(int x, int y) {
+    if (isInArray(x, y, snake->getBody(), 1)
+        || isOutOfBoundary(x, CELL_SIZE, screenWidth - CELL_SIZE * 2)
+        || isOutOfBoundary(y, CELL_SIZE * 2, screenHeight - CELL_SIZE * 2)) {
+        endGame(LOSS);
         return true;
     }
     return false;
@@ -336,6 +330,7 @@ GameStatus Game::getGameStatus() const {
 
 bool Game::isVictory() {
     if (snake->getLength() == screenWidth * screenHeight) {
+        endGame(WON);
         return true;
     }
     return false;

@@ -20,23 +20,18 @@ TEST_CASE("Verify game logic") {
         REQUIRE(game->getFood().size() == 2);
 
         game->setSnakePosition();
-        REQUIRE(game->getSnake()->getBody()[0]->getX() == CELL_SIZE * 6);
-        REQUIRE(game->getSnake()->getBody()[0]->getY() == CELL_SIZE * 5);
+        REQUIRE(game->getSnake()->getHead()->getX() == CELL_SIZE * 6);
+        REQUIRE(game->getSnake()->getHead()->getY() == CELL_SIZE * 5);
         REQUIRE(game->getSnake()->getLength() == 2);
         REQUIRE(game->getFood().size() == 1);
         REQUIRE(game->getScore() == 1);
     }
 
-    SECTION("Lose game") {
-        game->addFood(CELL_SIZE * 6, CELL_SIZE * 5);
-        game->addFood(CELL_SIZE * 7, CELL_SIZE * 5);
-        game->addFood(CELL_SIZE * 8, CELL_SIZE * 5);
-        game->addFood(CELL_SIZE * 9, CELL_SIZE * 5);
-
-        game->setSnakePosition();
-        game->setSnakePosition();
-        game->setSnakePosition();
-        game->setSnakePosition();
+    SECTION("Lose game" "[Hit itself]") {
+        for (int i = 0; i < 4; ++i) {
+            game->addFood(CELL_SIZE * (i + 6), CELL_SIZE * 5);
+            game->setSnakePosition();
+        }
         REQUIRE(game->getSnake()->getLength() == 5);
 
         game->getSnake()->setDirection(DOWN);
@@ -46,6 +41,14 @@ TEST_CASE("Verify game logic") {
         game->getSnake()->setDirection(UP);
         game->setSnakePosition();
 
+        REQUIRE(game->getGameStatus() == LOSS);
+    }
+
+    SECTION("Lose game" "[Hit boundary]") {
+        game->getSnake()->setDirection(UP);
+        for (int i = 0; i < 4; ++i) {
+            game->setSnakePosition();
+        }
         REQUIRE(game->getGameStatus() == LOSS);
     }
 

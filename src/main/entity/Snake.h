@@ -18,6 +18,8 @@ public:
 
     std::vector<Cell *> getBody();
 
+    Cell* getHead();
+
     int getSpeed() const;
 
     void setSpeed(int newSpeed);
@@ -25,8 +27,6 @@ public:
     int getLength() const;
 
     Direction getDirection() const;
-
-    int getWidth() const;
 
     void setDirection(Direction newDirection);
 
