@@ -37,12 +37,20 @@ cmake ..
 cmake --build .
 ```
 
-## Run
+## Run game
 
 Type these commands to command prompt to run the game:
 
 ```
 ./snake
+```
+
+## Run tests
+
+Type these commands to command prompt to run the game:
+
+```
+ctest
 ```
 
 ## Fix problems
