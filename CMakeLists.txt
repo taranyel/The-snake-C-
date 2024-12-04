@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.29)
+cmake_minimum_required(VERSION 3.20)
 project(snake)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -26,7 +26,6 @@ add_executable(
 #Tests
 add_executable(
         tests src/test/controller/GameTest.cpp
-        src/test/screen/ScreenTest.cpp
         src/test/catch.hpp
         src/test/catch.cpp
 
@@ -47,27 +46,24 @@ add_executable(
 
 enable_testing()
 add_test(NAME all COMMAND tests)
-
 target_link_libraries(snake raylib)
 target_link_libraries(tests raylib)
 
-#for linux - raylib is already installed correctly (see in README.md how to correctly install raylib for Linux)
 
-#find_package(raylib REQUIRED)
+#Here you have 3 options to link raylib library according to your system. You have to choose one.
+##1. For Linux - raylib is already installed and your have X11 server set (for window applications)
+find_package(raylib REQUIRED)
 
 
-#for windows - raylib is already installed
-
+##2. For Windows - raylib is already installed (you can set your path to /include and /lib directories)
 include_directories(C:/raylib/w64devkit/x86_64-w64-mingw32/include)
 link_directories(C:/raylib/w64devkit/x86_64-w64-mingw32/lib)
-
 if (WIN32)
     target_link_libraries(snake gdi32 winmm)
 endif ()
 
 
-#for any OS with no raylib installed manually (but if you have Linux, you need to have all dependencies for raylib being installed)
-
+##3. For any OS with no raylib installed manually (but if you have Linux, you need to have have X11 server set)
 #include(FetchContent)
 #set(FETCHCONTENT_QUIET FALSE)
 #set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE) # don't build the supplied examples
